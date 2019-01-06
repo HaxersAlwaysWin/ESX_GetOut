@@ -16,11 +16,13 @@ Citizen.CreateThread(function()
 		local vehicleClass = GetVehicleClass(vehicle)
 		PlayerData = ESX.GetPlayerData()
 		
-		if vehicleClass == 18 and GetPedInVehicleSeat(vehicle, -1) == ped and PlayerData.job.name ~= 'police' then
+		if vehicleClass == 18 and GetPedInVehicleSeat(vehicle, -1) == ped then
+			if PlayerData.job.name ~= 'police' and PlayerData.job.name ~= 'ambulance' and PlayerData.job.name ~= 'mecano' then
 			ClearPedTasksImmediately(ped)
 			TaskLeaveVehicle(ped,vehicle,0)
 			Citizen.Wait(250)
 			TriggerServerEvent("KickPlayer:EmergencyVehicle")
+			end
 		end
 	end
 end)
