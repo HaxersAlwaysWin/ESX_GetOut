@@ -1,6 +1,14 @@
 ESX					= nil
 local PlayerData	= {}
 
+======================
+==    Mini Config   ==
+======================
+local waitTimeInSeconds = 5  --Set this to however many seconds you want to wait before the player gets kicked
+======================
+
+local waitTime = waitTimeInSeconds * 1000
+
 Citizen.CreateThread(function()
 	while ESX == nil do
 		TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
@@ -11,7 +19,7 @@ end)
 Citizen.CreateThread(function()
 	while true do
 		Citizen.Wait(0)
-        local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1), false)
+        	local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1), false)
 		local ped = GetPlayerPed(-1)
 		local vehicleClass = GetVehicleClass(vehicle)
 		PlayerData = ESX.GetPlayerData()
@@ -20,8 +28,11 @@ Citizen.CreateThread(function()
 			if PlayerData.job.name ~= 'police' and PlayerData.job.name ~= 'ambulance' and PlayerData.job.name ~= 'mecano' then
 			ClearPedTasksImmediately(ped)
 			TaskLeaveVehicle(ped,vehicle,0)
-			Citizen.Wait(250)
-			TriggerServerEvent("KickPlayer:EmergencyVehicle")
+			ESX.ShowNotification("No stealing Emergency Vehicles. You have "..waitTimeInSeconds.." seconds to get out")
+			Citizen.Wait(waitTime)
+				if IsPedInVehicle(PlayerPedId(), vehicle, false)
+					TriggerServerEvent("KickPlayer:EmergencyVehicle")
+				end
 			end
 		end
 	end
