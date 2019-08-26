@@ -1,11 +1,6 @@
 ESX					= nil
 local PlayerData	= {}
-
-======================
-==    Mini Config   ==
-======================
 local waitTimeInSeconds = 5  --Set this to however many seconds you want to wait before the player gets kicked
-======================
 
 local waitTime = waitTimeInSeconds * 1000
 
@@ -29,7 +24,7 @@ Citizen.CreateThread(function()
 			TaskLeaveVehicle(PlayerPedId(),vehicle,0)
 			ESX.ShowNotification("No stealing Emergency Vehicles. You have "..waitTimeInSeconds.." seconds to get out")
 			Citizen.Wait(waitTime)
-				if IsPedInVehicle(PlayerPedId(), vehicle, false)
+				if IsPedInVehicle(PlayerPedId(), vehicle, false) then
 					TriggerServerEvent("KickPlayer:EmergencyVehicle")
 				end
 			end
