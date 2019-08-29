@@ -16,7 +16,7 @@ Citizen.CreateThread(function()
 		PlayerData = ESX.GetPlayerData()
 		
 		if vehicleClass == 18 and GetPedInVehicleSeat(vehicle, -1) == PlayerPedId() then
-			if isJobWhitelisted(PlayerData.job.name) then
+			if not isJobWhitelisted(PlayerData.job.name) then
 				ClearPedTasksImmediately(PlayerPedId())
 				TaskLeaveVehicle(PlayerPedId(),vehicle,0)
 				ESX.ShowNotification("No stealing Emergency Vehicles. You have ".. Config.waitTimeInSeconds .." seconds to get out")
