@@ -1,8 +1,5 @@
 ESX					= nil
 local PlayerData	= {}
-local waitTimeInSeconds = 5  --Set this to however many seconds you want to wait before the player gets kicked
-
-local waitTime = waitTimeInSeconds * 1000
 
 Citizen.CreateThread(function()
 	while ESX == nil do
@@ -14,16 +11,16 @@ end)
 Citizen.CreateThread(function()
 	while true do
 		Citizen.Wait(1000)
-        	local vehicle = GetVehiclePedIsIn(PlayerPedId(), false)
+        local vehicle = GetVehiclePedIsIn(PlayerPedId(), false)
 		local vehicleClass = GetVehicleClass(vehicle)
 		PlayerData = ESX.GetPlayerData()
 		
 		if vehicleClass == 18 and GetPedInVehicleSeat(vehicle, -1) == PlayerPedId() then
-			if PlayerData.job.name ~= 'police' and PlayerData.job.name ~= 'ambulance' and PlayerData.job.name ~= 'mecano' then
-			ClearPedTasksImmediately(PlayerPedId())
-			TaskLeaveVehicle(PlayerPedId(),vehicle,0)
-			ESX.ShowNotification("No stealing Emergency Vehicles. You have "..waitTimeInSeconds.." seconds to get out")
-			Citizen.Wait(waitTime)
+			if isJobWhitelisted(PlayerData.job.name) then
+				ClearPedTasksImmediately(PlayerPedId())
+				TaskLeaveVehicle(PlayerPedId(),vehicle,0)
+				ESX.ShowNotification("No stealing Emergency Vehicles. You have ".. Config.waitTimeInSeconds .." seconds to get out")
+				Citizen.Wait(Config.waitTime)
 				if IsPedInVehicle(PlayerPedId(), vehicle, false) then
 					TriggerServerEvent("KickPlayer:EmergencyVehicle")
 				end
@@ -31,3 +28,14 @@ Citizen.CreateThread(function()
 		end
 	end
 end)
+
+
+function isJobWhitelisted(jobName)
+	for _, whitelistedJob in pairs(Config.whitelistedJobs) do
+		if jobName == whitelistedJob then
+			return true
+		end
+	end
+
+	return false
+end
