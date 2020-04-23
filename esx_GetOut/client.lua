@@ -1,33 +1,45 @@
-ESX					= nil
-local PlayerData	= {}
-local waitTimeInSeconds = 5  --Set this to however many seconds you want to wait before the player gets kicked
-
-local waitTime = waitTimeInSeconds * 1000
+ESX = nil
 
 Citizen.CreateThread(function()
-	while ESX == nil do
-		TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
-		Citizen.Wait(0)
-	end
+    while ESX == nil do
+        TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
+        Citizen.Wait(0)
+    end
 end)
 
+local inVehicle = false
+
 Citizen.CreateThread(function()
-	while true do
-		Citizen.Wait(1000)
-        	local vehicle = GetVehiclePedIsIn(PlayerPedId(), false)
-		local vehicleClass = GetVehicleClass(vehicle)
-		PlayerData = ESX.GetPlayerData()
-		
-		if vehicleClass == 18 and GetPedInVehicleSeat(vehicle, -1) == PlayerPedId() then
-			if PlayerData.job.name ~= 'police' and PlayerData.job.name ~= 'ambulance' and PlayerData.job.name ~= 'mecano' then
-			ClearPedTasksImmediately(PlayerPedId())
-			TaskLeaveVehicle(PlayerPedId(),vehicle,0)
-			ESX.ShowNotification("No stealing Emergency Vehicles. You have "..waitTimeInSeconds.." seconds to get out")
-			Citizen.Wait(waitTime)
-				if IsPedInVehicle(PlayerPedId(), vehicle, false) then
-					TriggerServerEvent("KickPlayer:EmergencyVehicle")
-				end
-			end
-		end
-	end
+    local player = PlayerPedId()
+    while(true) do
+	   Citizen.Wait(1000)
+        if inVehicle then
+         local vehicle = GetVehiclePedIsIn(player, false)
+		 local vehicleClass = GetVehicleClass(vehicle)
+		 local driver = GetPedInVehicleSeat(vehicle, -1)
+         if (vehicleClass == 18 and driver == player) then
+		 local job = ESX.PlayerData.job.name
+		  ESX.PlayerData = ESX.GetPlayerData()
+           if (job ~= 'police' and job ~= 'ambulance') then
+		     ESX.ShowNotification("No stealing Emergency Vehicles.")
+             TaskLeaveVehicle(player, vehicle, 0)
+            Citizen.Wait(5000)
+            local inVehicle = IsPedInVehicle(player, vehicle, true)
+           if (inVehicle) then
+           TriggerServerEvent("KickPlayer:EmergencyVehicle")
+         end
+        end
+       end
+      end
+        Citizen.Wait(500)
+    end
+end)
+
+
+Citizen.CreateThread(function()
+    local player = PlayerPedId()
+    while(true) do
+        inVehicle = IsPedInAnyVehicle(player, true)
+        Citizen.Wait(500)
+    end
 end)
